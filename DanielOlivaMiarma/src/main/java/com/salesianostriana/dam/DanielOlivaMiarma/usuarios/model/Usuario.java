@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="users")
+@Table(name="usuarios")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -51,7 +51,10 @@ public class Usuario implements UserDetails {
 
     private String avatar;
 
-    private String contraseña;
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private RolUsuario rol;
 
     @Builder.Default
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)

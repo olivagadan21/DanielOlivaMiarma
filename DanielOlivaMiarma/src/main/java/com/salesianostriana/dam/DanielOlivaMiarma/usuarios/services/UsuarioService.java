@@ -23,7 +23,7 @@ public class UsuarioService extends BaseService<Usuario, UUID, UsuarioRepository
     public Usuario save(CreateUsuarioDto newUser) {
         if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
             Usuario usuario = Usuario.builder()
-                    .contraseña(passwordEncoder.encode(newUser.getPassword()))
+                    .password(passwordEncoder.encode(newUser.getPassword()))
                     .avatar(newUser.getAvatar())
                     .nombre(newUser.getNombre())
                     .apellidos(newUser.getApellidos())
