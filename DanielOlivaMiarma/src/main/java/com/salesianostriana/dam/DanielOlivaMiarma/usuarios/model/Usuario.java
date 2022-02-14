@@ -44,6 +44,8 @@ public class Usuario implements UserDetails {
 
     private String apellidos;
 
+    private String username;
+
     @NaturalId
     @Column(unique = true, updatable = false)
     private String email;
@@ -77,7 +79,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
@@ -100,11 +102,14 @@ public class Usuario implements UserDetails {
         return true;
     }
 
-    public Usuario(String nombre, String apellidos, String email, String telefono, String avatar) {
+    public Usuario(String nombre, String apellidos, String username, String email, String telefono, LocalDate fechaNacimiento, TipoVisualizacion tipoVisualizacion, String avatar) {
         this.nombre = nombre;
         this.apellidos = apellidos;
+        this.username = username;
         this.email = email;
         this.telefono = telefono;
+        this.fechaNacimiento = fechaNacimiento;
+        this.tipoVisualizacion = tipoVisualizacion;
         this.avatar = avatar;
     }
 }

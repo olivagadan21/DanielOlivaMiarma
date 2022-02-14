@@ -36,9 +36,9 @@ public class UsuarioService extends BaseService<Usuario, UUID, UsuarioRepository
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        return this.repositorio.findFirstByEmail(email).orElseThrow(()-> new UsernameNotFoundException(email + " no encontrado"));
+        return this.repositorio.findFirstByUsername(username).orElseThrow(()-> new UsernameNotFoundException(username + " no encontrado"));
 
     }
 

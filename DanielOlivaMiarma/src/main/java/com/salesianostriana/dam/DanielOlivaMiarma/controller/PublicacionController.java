@@ -3,6 +3,7 @@ package com.salesianostriana.dam.DanielOlivaMiarma.controller;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.PublicacionService;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,10 +14,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -53,14 +56,14 @@ public class PublicacionController {
         }
     }
 
-    @Operation(summary = "Crea una nueva publicacion.")
+    @Operation(summary = "Edita una publicacion.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Se ha creado la nueva publicación",
+                    description = "Se ha editado la publicación",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Publicacion.class))}),
             @ApiResponse(responseCode = "404",
-                    description = "No se ha creado la nueva publicación",
+                    description = "No se ha editado la publicación",
                     content = @Content),
     })
     @PutMapping("{id}")
@@ -81,6 +84,30 @@ public class PublicacionController {
                         return p;
                     })
             );
+        }
+    }
+
+    @Operation(summary = "Elimina una publicacion.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se ha eliminado la publicación",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Publicacion.class))}),
+            @ApiResponse(responseCode = "404",
+                    description = "No se ha eliminado la publicación",
+                    content = @Content),
+    })
+    @DeleteMapping("{id}")
+    public ResponseEntity deletePost(@PathVariable UUID id) {
+
+        if (publicacionService.findById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+
+            publicacionService.deleteById(id);
+
+            return ResponseEntity.noContent().build();
+
         }
     }
 
@@ -106,6 +133,83 @@ public class PublicacionController {
         } else {
 
             return ResponseEntity.ok().body(publicaciones);
+
+        }
+
+    }
+
+    @Operation(summary = "Obtiene una publicación si es pública")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se ha encontrado la publicación",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Publicacion.class))}),
+            @ApiResponse(responseCode = "400",
+                    description = "No se ha encontrado la publicación",
+                    content = @Content),
+    })
+    @GetMapping("{id}")
+    public ResponseEntity<Publicacion> findOnePost (@PathVariable UUID id) {
+
+        if (publicacionService.findById(id).isEmpty() || publicacionService.findById(id).get().getTipoPublicacion().equals(TipoPublicacion.PRIVADA)) {
+
+            return ResponseEntity.notFound().build();
+
+        } else {
+
+            return ResponseEntity.ok().body(publicacionService.findById(id).get());
+
+        }
+
+    }
+
+    @Operation(summary = "Obtiene las publicaciones de una persona")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se han encontrado las publicaciones",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Publicacion.class))}),
+            @ApiResponse(responseCode = "400",
+                    description = "No se han encontrado las publicaciones",
+                    content = @Content),
+    })
+    @GetMapping("{nick}")
+    public ResponseEntity<List<Publicacion>> findPostsByNick (@PathVariable String nick) {
+
+        if (nick.isEmpty() || usuarioService.loadUserByUsername(nick)==null || publicacionService.findAllByUserNick(nick).isEmpty()) {
+
+            return ResponseEntity.notFound().build();
+
+        } else {
+
+            return ResponseEntity.ok().body(publicacionService.findAllByUserNick(nick));
+
+        }
+
+    }
+
+    @Operation(summary = "Obtiene mis publicaciones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se han encontrado mis publicaciones",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Publicacion.class))}),
+            @ApiResponse(responseCode = "400",
+                    description = "No se han encontrado mis publicaciones",
+                    content = @Content),
+    })
+    @GetMapping("me")
+    public ResponseEntity<List<Publicacion>> findAllMyPosts (@AuthenticationPrincipal Usuario usuarioAuth) {
+
+        Optional<Usuario> usuario = usuarioService.loadUserById(usuarioAuth.getId());
+
+        if (usuario.isEmpty()) {
+
+            return ResponseEntity.notFound().build();
+
+        } else {
+
+            return ResponseEntity.ok().body(usuario.get().getPublicacionList());
 
         }
 
