@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +49,10 @@ public class Usuario implements UserDetails {
     private String email;
 
     private String telefono;
+
+    private LocalDate fechaNacimiento;
+
+    private TipoVisualizacion tipoVisualizacion;
 
     private String avatar;
 

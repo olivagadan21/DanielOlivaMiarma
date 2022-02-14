@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class PublicacionController {
                     content = @Content),
     })
     @PostMapping("")
-    public ResponseEntity<Publicacion> createVivienda(@RequestBody Publicacion publicacion) {
+    public ResponseEntity<Publicacion> addPost(@RequestBody Publicacion publicacion) {
 
         if (publicacion.getTitulo().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -52,6 +53,37 @@ public class PublicacionController {
         }
     }
 
+    @Operation(summary = "Crea una nueva publicacion.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se ha creado la nueva publicación",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Publicacion.class))}),
+            @ApiResponse(responseCode = "404",
+                    description = "No se ha creado la nueva publicación",
+                    content = @Content),
+    })
+    @PutMapping("{id}")
+    public ResponseEntity<Publicacion> editPost(@RequestBody Publicacion publicacion, @PathVariable UUID id) {
+
+        if (publicacion == null || id == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+
+            return ResponseEntity.of(
+                    publicacionService.findById(id).map(p ->{
+                        p.setTexto(publicacion.getTexto());
+                        p.setTitulo(publicacion.getTitulo());
+                        p.setTipoPublicacion(publicacion.getTipoPublicacion());
+                        p.setFichero(p.getFichero());
+                        publicacionService.save(p);
+
+                        return p;
+                    })
+            );
+        }
+    }
+
     @Operation(summary = "Obtiene lista de publicaciones públicas")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
@@ -62,7 +94,7 @@ public class PublicacionController {
                     description = "No se han encontrado las publicaciones públicas",
                     content = @Content),
     })
-    @GetMapping("")
+    @GetMapping("public")
     public ResponseEntity<List<Publicacion>> findAllPublic () {
 
         List<Publicacion> publicaciones = publicacionService.findAllPublic();

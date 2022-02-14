@@ -1,5 +1,6 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.RolUsuario;
 import lombok.*;
 
 @Getter
@@ -13,6 +14,6 @@ public class GetUsuarioDto {
     private String nombre;
     private String apellidos;
     private String email;
-    private String rol;
+    private RolUsuario rol;
 
 }
