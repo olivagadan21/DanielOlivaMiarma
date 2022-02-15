@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class PublicacionService extends BaseService<Publicacion, UUID, PublicacionRepository> {
+public class PublicacionService extends BaseService<Publicacion, Long, PublicacionRepository> {
 
     private PublicacionRepository publicacionRepository;
 

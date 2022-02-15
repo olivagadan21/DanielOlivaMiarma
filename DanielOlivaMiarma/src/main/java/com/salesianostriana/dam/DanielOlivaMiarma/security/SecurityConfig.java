@@ -2,7 +2,6 @@ package com.salesianostriana.dam.DanielOlivaMiarma.security;
 
 import com.salesianostriana.dam.DanielOlivaMiarma.security.jwt.JwtAccessDeniedHandler;
 import com.salesianostriana.dam.DanielOlivaMiarma.security.jwt.JwtAuthorizationFilter;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.RolUsuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/auth").hasRole("USUARIO")
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll();
 

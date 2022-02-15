@@ -67,7 +67,7 @@ public class PublicacionController {
                     content = @Content),
     })
     @PutMapping("{id}")
-    public ResponseEntity<Publicacion> editPost(@RequestBody Publicacion publicacion, @PathVariable UUID id) {
+    public ResponseEntity<Publicacion> editPost(@RequestBody Publicacion publicacion, @PathVariable Long id) {
 
         if (publicacion == null || id == null) {
             return ResponseEntity.notFound().build();
@@ -98,7 +98,7 @@ public class PublicacionController {
                     content = @Content),
     })
     @DeleteMapping("{id}")
-    public ResponseEntity deletePost(@PathVariable UUID id) {
+    public ResponseEntity deletePost(@PathVariable Long id) {
 
         if (publicacionService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -149,7 +149,7 @@ public class PublicacionController {
                     content = @Content),
     })
     @GetMapping("{id}")
-    public ResponseEntity<Publicacion> findOnePost (@PathVariable UUID id) {
+    public ResponseEntity<Publicacion> findOnePost (@PathVariable Long id) {
 
         if (publicacionService.findById(id).isEmpty() || publicacionService.findById(id).get().getTipoPublicacion().equals(TipoPublicacion.PRIVADA)) {
 
@@ -173,7 +173,7 @@ public class PublicacionController {
                     description = "No se han encontrado las publicaciones",
                     content = @Content),
     })
-    @GetMapping("{nick}")
+    @GetMapping("user/{nick}")
     public ResponseEntity<List<Publicacion>> findPostsByNick (@PathVariable String nick) {
 
         if (nick.isEmpty() || usuarioService.loadUserByUsername(nick)==null || publicacionService.findAllByUserNick(nick).isEmpty()) {
@@ -203,15 +203,7 @@ public class PublicacionController {
 
         Optional<Usuario> usuario = usuarioService.loadUserById(usuarioAuth.getId());
 
-        if (usuario.isEmpty()) {
-
-            return ResponseEntity.notFound().build();
-
-        } else {
-
-            return ResponseEntity.ok().body(usuario.get().getPublicacionList());
-
-        }
+        return usuario.map(value -> ResponseEntity.ok().body(value.getPublicacionList())).orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 

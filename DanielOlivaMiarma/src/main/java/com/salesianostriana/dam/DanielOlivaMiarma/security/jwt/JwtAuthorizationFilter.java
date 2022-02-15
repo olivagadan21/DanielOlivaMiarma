@@ -35,7 +35,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
             if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
 
-                UUID userId = jwtProvider.getUserIdFromJwt(token);
+                Long userId = jwtProvider.getUserIdFromJwt(token);
 
                 Optional<Usuario> userEntity = usuarioService.findById(userId);
 
@@ -50,6 +50,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+
 
                 }
             }

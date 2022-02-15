@@ -39,26 +39,26 @@ public class AuthenticationController {
 
         String jwt = jwtProvider.generateToken(authentication);
 
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario user = (Usuario) authentication.getPrincipal();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(convertUserToJwtUserResponse(usuario, jwt));
+                .body(convertUserToJwtUserResponse(user, jwt));
 
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> quienSoyYo(@AuthenticationPrincipal Usuario usuario){
-        return ResponseEntity.ok(convertUserToJwtUserResponse(usuario, null));
+    public ResponseEntity<?> quienSoyYo(@AuthenticationPrincipal Usuario user){
+        return ResponseEntity.ok(convertUserToJwtUserResponse(user, null));
     }
 
 
-    private JwtUserResponse convertUserToJwtUserResponse(Usuario usuario, String jwt) {
+    private JwtUserResponse convertUserToJwtUserResponse(Usuario user, String jwt) {
         return JwtUserResponse.builder()
-                .nombre(usuario.getNombre())
-                .apellidos(usuario.getApellidos())
-                .email(usuario.getEmail())
-                .avatar(usuario.getAvatar())
-                .rol(usuario.getRol().name())
+                .nombre(user.getNombre())
+                .apellidos(user.getApellidos())
+                .email(user.getEmail())
+                .avatar(user.getAvatar())
+                .rol(user.getRol().name())
                 .token(jwt)
                 .build();
     }

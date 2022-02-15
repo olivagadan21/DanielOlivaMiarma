@@ -10,9 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Log
-public class SpringSecurityAuditorAware implements AuditorAware<UUID> {
+public class SpringSecurityAuditorAware implements AuditorAware<Long> {
     @Override
-    public Optional<UUID> getCurrentAuditor() {
+    public Optional<Long> getCurrentAuditor() {
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

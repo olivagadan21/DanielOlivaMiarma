@@ -1,8 +1,11 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.controller;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
+import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.CreateUsuarioDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.GetUsuarioDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.UsuarioDtoConverter;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.TipoVisualizacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,9 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +45,56 @@ public class UsuarioController {
             return ResponseEntity.badRequest().build();
         else
             return ResponseEntity.ok(usuarioDtoConverter.usuarioEntityToGetUsuarioDto(nuevo));
+
+    }
+
+    @Operation(summary = "Muestra el perfil de un usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se ha encontrado el perfil",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Usuario.class))}),
+            @ApiResponse(responseCode = "400",
+                    description = "No se ha encontrado el perfil",
+                    content = @Content),
+    })
+    @GetMapping("profile/{id}")
+    public ResponseEntity<Usuario> findOneProfile (@PathVariable Long id) {
+
+        if (usuarioService.findById(id).isEmpty() || usuarioService.findById(id).get().getTipoVisualizacion().equals(TipoVisualizacion.PRIVADO)) {
+
+            return ResponseEntity.notFound().build();
+
+        } else {
+
+            return ResponseEntity.ok().body(usuarioService.findById(id).get());
+
+        }
+
+    }
+
+    @Operation(summary = "Muestra el perfil de un usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Se ha encontrado el perfil",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Usuario.class))}),
+            @ApiResponse(responseCode = "400",
+                    description = "No se ha encontrado el perfil",
+                    content = @Content),
+    })
+    @GetMapping("profile/me")
+    public ResponseEntity<Usuario> findMyProfile (@AuthenticationPrincipal Usuario usuarioAuth) {
+
+        if (usuarioService.findById(usuarioAuth.getId()).isEmpty()) {
+
+            return ResponseEntity.notFound().build();
+
+        } else {
+
+            return ResponseEntity.ok().body(usuarioService.findById(usuarioAuth.getId()).get());
+
+        }
 
     }
 

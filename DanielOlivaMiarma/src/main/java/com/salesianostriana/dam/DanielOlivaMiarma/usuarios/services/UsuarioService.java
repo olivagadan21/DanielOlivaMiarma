@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Service("userDetailsService")
 @RequiredArgsConstructor
-public class UsuarioService extends BaseService<Usuario, UUID, UsuarioRepository> implements UserDetailsService {
+public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository> implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
@@ -36,13 +36,12 @@ public class UsuarioService extends BaseService<Usuario, UUID, UsuarioRepository
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        return this.repositorio.findFirstByUsername(username).orElseThrow(()-> new UsernameNotFoundException(username + " no encontrado"));
-
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return this.repositorio.findFirstByEmail(email)
+                .orElseThrow(()-> new UsernameNotFoundException(email + " no encontrado"));
     }
 
-    public Optional<Usuario> loadUserById(UUID id) throws UsernameNotFoundException {
+    public Optional<Usuario> loadUserById(Long id) throws UsernameNotFoundException {
         return this.repositorio.findById(id);
     }
 

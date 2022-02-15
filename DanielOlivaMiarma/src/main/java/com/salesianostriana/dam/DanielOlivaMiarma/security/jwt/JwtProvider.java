@@ -61,8 +61,8 @@ public class JwtProvider {
 
     }
 
-    public UUID getUserIdFromJwt(String token) {
-        return UUID.fromString(parser.parseClaimsJws(token).getBody().getSubject());
+    public Long getUserIdFromJwt(String token) {
+        return Long.valueOf(parser.parseClaimsJws(token).getBody().getSubject());
     }
 
     public boolean validateToken(String token) {
