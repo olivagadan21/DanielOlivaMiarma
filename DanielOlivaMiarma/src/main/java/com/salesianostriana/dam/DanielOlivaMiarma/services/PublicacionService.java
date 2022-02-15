@@ -1,39 +1,21 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.services;
 
 import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
-import com.salesianostriana.dam.DanielOlivaMiarma.repos.PublicacionRepository;
-import com.salesianostriana.dam.DanielOlivaMiarma.services.base.BaseService;
-import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
-@Service
-public class PublicacionService extends BaseService<Publicacion, Long, PublicacionRepository> {
+public interface PublicacionService {
 
-    private PublicacionRepository publicacionRepository;
+    List<Publicacion> findAll();
 
-    public List<Publicacion> findAllPublic() {
+    Optional<Publicacion> findById(Long id);
 
-        return publicacionRepository.findAllPublic();
+    Publicacion save(Publicacion p, MultipartFile mf);
 
-    }
+    void delete(Publicacion p);
 
-    public List<Publicacion> findAllByUserNick(String nick) {
-
-        List<Publicacion> listPostsByNick = new ArrayList<>();
-
-        for (Publicacion p:publicacionRepository.findAll()) {
-
-            if (p.getUsuario().getUsername()==nick)
-                listPostsByNick.add(p);
-
-        }
-
-        return listPostsByNick;
-
-    }
-
+    void deleteById(Long id);
 
 }

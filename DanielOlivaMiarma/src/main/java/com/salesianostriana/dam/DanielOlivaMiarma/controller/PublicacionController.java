@@ -2,9 +2,9 @@ package com.salesianostriana.dam.DanielOlivaMiarma.controller;
 
 import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
-import com.salesianostriana.dam.DanielOlivaMiarma.services.PublicacionService;
+import com.salesianostriana.dam.DanielOlivaMiarma.services.impl.PublicacionImplService;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.UsuarioService;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.impl.UsuarioImplService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,11 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,8 +27,8 @@ import java.util.UUID;
 @RequestMapping("/post/")
 public class PublicacionController {
 
-    private final PublicacionService publicacionService;
-    private final UsuarioService usuarioService;
+    private final PublicacionImplService publicacionImplService;
+    private final UsuarioImplService usuarioImplService;
 
     @Operation(summary = "Crea una nueva publicacion.")
     @ApiResponses(value = {
@@ -42,17 +41,16 @@ public class PublicacionController {
                     content = @Content),
     })
     @PostMapping("")
-    public ResponseEntity<Publicacion> addPost(@RequestBody Publicacion publicacion) {
+    public ResponseEntity<?> addPost (@RequestPart("file") MultipartFile file,
+                                      @RequestPart("post") Publicacion newPost) {
 
-        if (publicacion.getTitulo().isEmpty()) {
+        if (newPost.getTitulo().isEmpty()) {
             return ResponseEntity.badRequest().build();
         } else {
 
-            publicacionService.save(publicacion);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(publicacionImplService.save(newPost, file));
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(publicacion);
         }
     }
 
@@ -67,19 +65,21 @@ public class PublicacionController {
                     content = @Content),
     })
     @PutMapping("{id}")
-    public ResponseEntity<Publicacion> editPost(@RequestBody Publicacion publicacion, @PathVariable Long id) {
+    public ResponseEntity<Publicacion> editPost (@RequestPart("file") MultipartFile file,
+                                                 @RequestPart("post") Publicacion publicacion,
+                                                 @PathVariable Long id) {
 
         if (publicacion == null || id == null) {
             return ResponseEntity.notFound().build();
         } else {
 
             return ResponseEntity.of(
-                    publicacionService.findById(id).map(p ->{
+                    publicacionImplService.findById(id).map(p ->{
                         p.setTexto(publicacion.getTexto());
                         p.setTitulo(publicacion.getTitulo());
                         p.setTipoPublicacion(publicacion.getTipoPublicacion());
                         p.setFichero(p.getFichero());
-                        publicacionService.save(p);
+                        publicacionImplService.save(p, file);
 
                         return p;
                     })
@@ -100,11 +100,11 @@ public class PublicacionController {
     @DeleteMapping("{id}")
     public ResponseEntity deletePost(@PathVariable Long id) {
 
-        if (publicacionService.findById(id).isEmpty()) {
+        if (publicacionImplService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
 
-            publicacionService.deleteById(id);
+            publicacionImplService.deleteById(id);
 
             return ResponseEntity.noContent().build();
 
@@ -124,7 +124,7 @@ public class PublicacionController {
     @GetMapping("public")
     public ResponseEntity<List<Publicacion>> findAllPublic () {
 
-        List<Publicacion> publicaciones = publicacionService.findAllPublic();
+        List<Publicacion> publicaciones = publicacionImplService.findAllPublic();
 
         if (publicaciones.isEmpty()) {
 
@@ -151,13 +151,13 @@ public class PublicacionController {
     @GetMapping("{id}")
     public ResponseEntity<Publicacion> findOnePost (@PathVariable Long id) {
 
-        if (publicacionService.findById(id).isEmpty() || publicacionService.findById(id).get().getTipoPublicacion().equals(TipoPublicacion.PRIVADA)) {
+        if (publicacionImplService.findById(id).isEmpty() || publicacionImplService.findById(id).get().getTipoPublicacion().equals(TipoPublicacion.PRIVADA)) {
 
             return ResponseEntity.notFound().build();
 
         } else {
 
-            return ResponseEntity.ok().body(publicacionService.findById(id).get());
+            return ResponseEntity.ok().body(publicacionImplService.findById(id).get());
 
         }
 
@@ -176,13 +176,13 @@ public class PublicacionController {
     @GetMapping("user/{nick}")
     public ResponseEntity<List<Publicacion>> findPostsByNick (@PathVariable String nick) {
 
-        if (nick.isEmpty() || usuarioService.loadUserByUsername(nick)==null || publicacionService.findAllByUserNick(nick).isEmpty()) {
+        if (nick.isEmpty() || usuarioImplService.loadUserByUsername(nick)==null || publicacionImplService.findAllByUserNick(nick).isEmpty()) {
 
             return ResponseEntity.notFound().build();
 
         } else {
 
-            return ResponseEntity.ok().body(publicacionService.findAllByUserNick(nick));
+            return ResponseEntity.ok().body(publicacionImplService.findAllByUserNick(nick));
 
         }
 
@@ -201,7 +201,7 @@ public class PublicacionController {
     @GetMapping("me")
     public ResponseEntity<List<Publicacion>> findAllMyPosts (@AuthenticationPrincipal Usuario usuarioAuth) {
 
-        Optional<Usuario> usuario = usuarioService.loadUserById(usuarioAuth.getId());
+        Optional<Usuario> usuario = usuarioImplService.loadUserById(usuarioAuth.getId());
 
         return usuario.map(value -> ResponseEntity.ok().body(value.getPublicacionList())).orElseGet(() -> ResponseEntity.notFound().build());
 

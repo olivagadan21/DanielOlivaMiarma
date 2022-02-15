@@ -1,48 +1,21 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services;
 
-import com.salesianostriana.dam.DanielOlivaMiarma.services.base.BaseService;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.CreateUsuarioDto;
+import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.repos.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-@Service("userDetailsService")
-@RequiredArgsConstructor
-public class UsuarioService extends BaseService<Usuario, Long, UsuarioRepository> implements UserDetailsService {
+public interface UsuarioService {
 
-    private final PasswordEncoder passwordEncoder;
+    List<Usuario> findAll();
 
-    public Usuario save(CreateUsuarioDto newUser) {
-        if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
-            Usuario usuario = Usuario.builder()
-                    .password(passwordEncoder.encode(newUser.getPassword()))
-                    .avatar(newUser.getAvatar())
-                    .nombre(newUser.getNombre())
-                    .apellidos(newUser.getApellidos())
-                    .email(newUser.getEmail())
-                    .build();
-            return save(usuario);
-        } else {
-            return null;
-        }
-    }
+    Optional<Usuario> findById(Long id);
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return this.repositorio.findFirstByEmail(email)
-                .orElseThrow(()-> new UsernameNotFoundException(email + " no encontrado"));
-    }
+    Usuario save(Usuario u);
 
-    public Optional<Usuario> loadUserById(Long id) throws UsernameNotFoundException {
-        return this.repositorio.findById(id);
-    }
+    void delete(Usuario u);
+
+    void deleteById(Long id);
 
 }
