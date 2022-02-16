@@ -32,5 +32,4 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
         httpServletResponse.getWriter().println(strjson);
     }
-
 }

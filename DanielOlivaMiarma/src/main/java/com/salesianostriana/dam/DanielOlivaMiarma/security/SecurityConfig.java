@@ -48,6 +48,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/auth/register/public").anonymous()
+                .antMatchers(HttpMethod.POST, "/auth/register/private").anonymous()
+                .antMatchers(HttpMethod.POST, "/auth/login").anonymous()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll();
 

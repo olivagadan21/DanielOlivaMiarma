@@ -1,6 +1,5 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto;
 
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.RolUsuario;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,9 @@ public class UsuarioDtoConverter {
                 .nombre(usuario.getNombre())
                 .apellidos(usuario.getApellidos())
                 .email(usuario.getEmail())
-                .rol(RolUsuario.USUARIO)
+                .rol(usuario.getRol().name())
+                .visualizacion(usuario.getTipoVisualizacion().toString())
+                .telefono(usuario.getTelefono())
                 .build();
     }
 

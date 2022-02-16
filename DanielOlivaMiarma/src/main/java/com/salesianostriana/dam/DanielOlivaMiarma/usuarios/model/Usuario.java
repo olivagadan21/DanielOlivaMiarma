@@ -56,6 +56,12 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Publicacion> publicacionList = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    List<Usuario> followings = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    List<Usuario> followers = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

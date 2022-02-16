@@ -1,7 +1,7 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.security.jwt;
 
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.impl.UsuarioImplService;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,13 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Log
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final UsuarioImplService usuarioImplService;
+    private final UsuarioService usuarioService;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -36,7 +37,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 Long userId = jwtProvider.getUserIdFromJwt(token);
 
-                Optional<Usuario> userEntity = usuarioImplService.findById(userId);
+                Optional<Usuario> userEntity = usuarioService.findById(userId);
 
                 if (userEntity.isPresent()) {
                     Usuario user = userEntity.get();
