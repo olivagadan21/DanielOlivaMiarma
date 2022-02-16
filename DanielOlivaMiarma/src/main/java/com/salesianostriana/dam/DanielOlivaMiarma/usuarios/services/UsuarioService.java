@@ -1,5 +1,6 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.services.StorageService;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.CreateUsuarioDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.RolUsuario;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.TipoVisualizacion;
@@ -11,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +23,13 @@ import java.util.Optional;
 public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
+    private final StorageService storageService;
     private final PasswordEncoder passwordEncoder;
 
-    public Usuario savePublic(CreateUsuarioDto newUser) {
+    public Usuario savePublic(CreateUsuarioDto newUser, MultipartFile file) {
         if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
             Usuario usuario = Usuario.builder()
                     .password(passwordEncoder.encode(newUser.getPassword()))
-                    .avatar(newUser.getAvatar())
                     .nombre(newUser.getNombre())
                     .apellidos(newUser.getApellidos())
                     .email(newUser.getEmail())
@@ -35,17 +38,24 @@ public class UsuarioService implements UserDetailsService {
                     .username(newUser.getUsername())
                     .telefono(newUser.getTelefono())
                     .build();
+
+            String filename = storageService.store(file);
+
+            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/download/")
+                    .path(filename)
+                    .toUriString();
+
             return save(usuario);
         } else {
             return null;
         }
     }
 
-    public Usuario savePrivate(CreateUsuarioDto newUser) {
+    public Usuario savePrivate(CreateUsuarioDto newUser, MultipartFile file) {
         if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
             Usuario usuario = Usuario.builder()
                     .password(passwordEncoder.encode(newUser.getPassword()))
-                    .avatar(newUser.getAvatar())
                     .nombre(newUser.getNombre())
                     .apellidos(newUser.getApellidos())
                     .email(newUser.getEmail())
@@ -54,6 +64,14 @@ public class UsuarioService implements UserDetailsService {
                     .username(newUser.getUsername())
                     .telefono(newUser.getTelefono())
                     .build();
+
+            String filename = storageService.store(file);
+
+            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/download/")
+                    .path(filename)
+                    .toUriString();
+
             return save(usuario);
         } else {
             return null;

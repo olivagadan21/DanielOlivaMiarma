@@ -1,5 +1,6 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.services;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.dto.CreatePublicacionDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +13,7 @@ public interface PublicacionService {
 
     Optional<Publicacion> findById(Long id);
 
-    Publicacion save(Publicacion p, MultipartFile mf);
+    Publicacion save(CreatePublicacionDto p, MultipartFile mf);
 
     void delete(Publicacion p);
 

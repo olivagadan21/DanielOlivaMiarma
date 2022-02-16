@@ -1,5 +1,6 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.controller;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.dto.CreatePublicacionDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.impl.PublicacionImplService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,9 +42,9 @@ public class PublicacionController {
                     description = "No se ha creado la nueva publicación",
                     content = @Content),
     })
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addPost (@RequestPart("file") MultipartFile file,
-                                      @RequestPart("post") Publicacion newPost) {
+                                      @RequestPart("post") CreatePublicacionDto newPost) {
 
         if (newPost.getTitulo().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -66,7 +68,7 @@ public class PublicacionController {
     })
     @PutMapping("{id}")
     public ResponseEntity<Publicacion> editPost (@RequestPart("file") MultipartFile file,
-                                                 @RequestPart("post") Publicacion publicacion,
+                                                 @RequestPart("post") CreatePublicacionDto publicacion,
                                                  @PathVariable Long id) {
 
         if (publicacion == null || id == null) {
@@ -77,9 +79,9 @@ public class PublicacionController {
                     publicacionImplService.findById(id).map(p ->{
                         p.setTexto(publicacion.getTexto());
                         p.setTitulo(publicacion.getTitulo());
-                        p.setTipoPublicacion(publicacion.getTipoPublicacion());
+                        p.setTipoPublicacion(TipoPublicacion.valueOf(publicacion.getTipoPublicacion()));
                         p.setFichero(p.getFichero());
-                        publicacionImplService.save(p, file);
+                        publicacionImplService.save(publicacion, file);
 
                         return p;
                     })

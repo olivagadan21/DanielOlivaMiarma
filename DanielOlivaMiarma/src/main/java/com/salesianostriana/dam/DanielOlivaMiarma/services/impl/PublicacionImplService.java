@@ -1,14 +1,22 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.services.impl;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.dto.CreatePublicacionDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
+import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.repos.PublicacionRepository;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.PublicacionService;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.imgscalr.Scalr;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,8 +63,37 @@ public class PublicacionImplService implements PublicacionService {
     }
 
     @Override
-    public Publicacion save(Publicacion p, MultipartFile file) {
+    public Publicacion save(CreatePublicacionDto p, MultipartFile file) {
 
+        Publicacion publicacion = Publicacion.builder()
+                .titulo(p.getTitulo())
+                .texto(p.getTexto())
+                .tipoPublicacion(TipoPublicacion.valueOf(p.getTipoPublicacion()))
+                .build();
+
+/*
+        try {
+
+            BufferedImage bi = Scalr.resize(ImageIO.read(file.getInputStream()), 150);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write( bi, "jpg", baos );
+            baos.flush();
+
+            MultipartFile multipartFile = new MockMultipartFile(file.getName(), baos.toByteArray());
+
+            String filename = storageService.store(multipartFile);
+
+            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/download/")
+                    .path(filename)
+                    .toUriString();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+*/
         String filename = storageService.store(file);
 
         String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -64,7 +101,8 @@ public class PublicacionImplService implements PublicacionService {
                 .path(filename)
                 .toUriString();
 
-        return publicacionRepository.save(p);
+        return publicacionRepository.save(publicacion);
+
     }
 
     @Override

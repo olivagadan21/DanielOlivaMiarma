@@ -13,9 +13,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,13 +37,14 @@ public class UsuarioController {
                     description = "No se ha creado el nuevo usuario publico",
                     content = @Content),
     })
-    @PostMapping("/auth/register/public")
-    public ResponseEntity<GetUsuarioDto> newUserPublic(@RequestBody CreateUsuarioDto newUser) {
+    @PostMapping(value = "/auth/register/public", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<GetUsuarioDto> newUserPublic(@RequestPart("user") CreateUsuarioDto newUser,
+                                                       @RequestPart("file") MultipartFile file) {
 
         if (newUser==null)
             return ResponseEntity.badRequest().build();
         else {
-            Usuario nuevo = usuarioService.savePublic(newUser);
+            Usuario nuevo = usuarioService.savePublic(newUser, file);
             return ResponseEntity.ok(usuarioDtoConverter.usuarioEntityToGetUsuarioDto(nuevo));
         }
 
@@ -58,12 +61,13 @@ public class UsuarioController {
                     content = @Content),
     })
     @PostMapping("/auth/register/private")
-    public ResponseEntity<GetUsuarioDto> newUserPrivate(@RequestBody CreateUsuarioDto newUser) {
+    public ResponseEntity<GetUsuarioDto> newUserPrivate (@RequestPart("user") CreateUsuarioDto newUser,
+                                                         @RequestPart("file") MultipartFile file) {
 
         if (newUser==null)
             return ResponseEntity.badRequest().build();
         else {
-            Usuario nuevo = usuarioService.savePrivate(newUser);
+            Usuario nuevo = usuarioService.savePrivate(newUser, file);
             return ResponseEntity.ok(usuarioDtoConverter.usuarioEntityToGetUsuarioDto(nuevo));
         }
 
