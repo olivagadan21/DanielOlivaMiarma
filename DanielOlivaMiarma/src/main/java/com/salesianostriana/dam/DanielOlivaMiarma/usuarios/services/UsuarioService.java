@@ -1,143 +1,49 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services;
 
-import com.salesianostriana.dam.DanielOlivaMiarma.services.StorageService;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.CreateUsuarioDto;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.RolUsuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.TipoVisualizacion;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.repos.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-@Service("userDetailsService")
-@RequiredArgsConstructor
-public class UsuarioService implements UserDetailsService {
+public abstract class UsuarioService <T, ID, R extends JpaRepository<T,ID>> {
 
-    private final UsuarioRepository usuarioRepository;
-    private final StorageService storageService;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    protected R repositorio;
 
-    public Usuario savePublic(CreateUsuarioDto newUser, MultipartFile file) {
-        if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
-            Usuario usuario = Usuario.builder()
-                    .password(passwordEncoder.encode(newUser.getPassword()))
-                    .nombre(newUser.getNombre())
-                    .apellidos(newUser.getApellidos())
-                    .email(newUser.getEmail())
-                    .rol(RolUsuario.USUARIO)
-                    .tipoVisualizacion(TipoVisualizacion.PUBLICO)
-                    .telefono(newUser.getTelefono())
-                    .avatar(file.getOriginalFilename())
-                    .build();
-
-            String filename = storageService.store(file);
-
-            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/download/")
-                    .path(filename)
-                    .toUriString();
-
-            return save(usuario);
-        } else {
-            return null;
-        }
+    public List<T> findAll() {
+        return repositorio.findAll();
     }
 
-    public Usuario savePrivate(CreateUsuarioDto newUser, MultipartFile file) {
-        if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
-            Usuario usuario = Usuario.builder()
-                    .password(passwordEncoder.encode(newUser.getPassword()))
-                    .nombre(newUser.getNombre())
-                    .apellidos(newUser.getApellidos())
-                    .email(newUser.getEmail())
-                    .rol(RolUsuario.USUARIO)
-                    .tipoVisualizacion(TipoVisualizacion.PRIVADO)
-                    .telefono(newUser.getTelefono())
-                    .avatar(file.getOriginalFilename())
-                    .build();
+    public Page<T> findAll(Pageable pageable){
 
-            String filename = storageService.store(file);
-
-            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/download/")
-                    .path(filename)
-                    .toUriString();
-
-            return save(usuario);
-        } else {
-            return null;
-        }
+        return repositorio.findAll(pageable);
     }
 
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return this.usuarioRepository.findFirstByEmail(email)
-                .orElseThrow(()-> new UsernameNotFoundException(email + " no encontrado"));
+    public List<T>findAlldto(){
+        return repositorio.findAll();
     }
 
-    public Page<Usuario> loadUserByRol(RolUsuario rol, Pageable pageable) throws UsernameNotFoundException {
-        return this.usuarioRepository.findByRol(rol, pageable);
+    public Optional<T> findById(ID id) {
+        return repositorio.findById(id);
     }
 
-    public Optional<Usuario> loadUserById(UUID id) throws UsernameNotFoundException {
-        return this.usuarioRepository.findById(id);
+    public T save(T t) {
+        return repositorio.save(t);
     }
 
-    public List<Usuario> findAll() {
-        return usuarioRepository.findAll();
+    public T edit(T t) {
+        return save(t);
     }
 
-    public Optional<Usuario> findById(UUID id) {
-        return usuarioRepository.findById(id);
+    public void delete(T t) {
+        repositorio.delete(t);
     }
 
-    public Usuario save(Usuario u) {
-        return usuarioRepository.save(u);
-    }
-
-    public void delete(Usuario u) {
-        usuarioRepository.delete(u);
-    }
-
-    public void deleteById(UUID id) {
-        usuarioRepository.deleteById(id);
-    }
-
-    public Usuario editMyProfile  (CreateUsuarioDto newUser, MultipartFile file, Usuario usuarioAuth) {
-
-        usuarioAuth.setNombre(newUser.getNombre());
-        usuarioAuth.setApellidos(newUser.getApellidos());
-        usuarioAuth.setEmail(newUser.getEmail());
-        usuarioAuth.setTelefono(newUser.getTelefono());
-        usuarioAuth.setPassword(newUser.getPassword());
-
-        storageService.deleteFile(usuarioAuth.getAvatar());
-
-        String filename = storageService.store(file);
-
-        String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/download/")
-                .path(filename)
-                .toUriString();
-
-        usuarioRepository.save(usuarioAuth);
-
-        return usuarioAuth;
-
+    public void deleteById(ID id) {
+        repositorio.deleteById(id);
     }
 
 }

@@ -9,6 +9,7 @@ import com.salesianostriana.dam.DanielOlivaMiarma.services.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.imgscalr.Scalr;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -38,16 +39,7 @@ public class PublicacionImplService implements PublicacionService {
 
     public List<Publicacion> findAllByUserNick(String nick) {
 
-        List<Publicacion> listPostsByNick = new ArrayList<>();
-
-        for (Publicacion p:publicacionRepository.findAll()) {
-
-            if (p.getUsuario().getUsername()==nick)
-                listPostsByNick.add(p);
-
-        }
-
-        return listPostsByNick;
+        return publicacionRepository.findAllByUserNick(nick);
 
     }
 
@@ -71,29 +63,6 @@ public class PublicacionImplService implements PublicacionService {
                 .tipoPublicacion(TipoPublicacion.valueOf(p.getTipoPublicacion()))
                 .build();
 
-/*
-        try {
-
-            BufferedImage bi = Scalr.resize(ImageIO.read(file.getInputStream()), 150);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write( bi, "jpg", baos );
-            baos.flush();
-
-            MultipartFile multipartFile = new MockMultipartFile(file.getName(), baos.toByteArray());
-
-            String filename = storageService.store(multipartFile);
-
-            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/download/")
-                    .path(filename)
-                    .toUriString();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
         String filename = storageService.store(file);
 
         String uri = ServletUriComponentsBuilder.fromCurrentContextPath()

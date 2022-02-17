@@ -5,7 +5,7 @@ import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.GetUsuarioDto;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto.UsuarioDtoConverter;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.TipoVisualizacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.UsuarioService;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.impl.UsuarioImplService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @Tag(name = "User", description = "User Controller")
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+    private final UsuarioImplService usuarioImplService;
     private final UsuarioDtoConverter usuarioDtoConverter;
 
     @Operation(summary = "Crea un nuevo usuario publico")
@@ -46,7 +46,7 @@ public class UsuarioController {
         if (newUser==null)
             return ResponseEntity.badRequest().build();
         else {
-            Usuario nuevo = usuarioService.savePublic(newUser, file);
+            Usuario nuevo = usuarioImplService.savePublic(newUser, file);
             return ResponseEntity.ok(usuarioDtoConverter.usuarioEntityToGetUsuarioDto(nuevo));
         }
 
@@ -69,7 +69,7 @@ public class UsuarioController {
         if (newUser==null)
             return ResponseEntity.badRequest().build();
         else {
-            Usuario nuevo = usuarioService.savePrivate(newUser, file);
+            Usuario nuevo = usuarioImplService.savePrivate(newUser, file);
             return ResponseEntity.ok(usuarioDtoConverter.usuarioEntityToGetUsuarioDto(nuevo));
         }
 
@@ -88,10 +88,10 @@ public class UsuarioController {
     @GetMapping("profile/{id}")
     public ResponseEntity<Usuario> findOneProfile (@PathVariable UUID id) {
 
-        if (usuarioService.findById(id).isEmpty() || usuarioService.findById(id).get().getTipoVisualizacion().equals(TipoVisualizacion.PRIVADO))
+        if (usuarioImplService.findById(id).isEmpty() || usuarioImplService.findById(id).get().getTipoVisualizacion().equals(TipoVisualizacion.PRIVADO))
             return ResponseEntity.notFound().build();
         else
-            return ResponseEntity.ok().body(usuarioService.findById(id).get());
+            return ResponseEntity.ok().body(usuarioImplService.findById(id).get());
 
     }
 
@@ -113,7 +113,7 @@ public class UsuarioController {
         if (usuarioAuth == null)
             return ResponseEntity.notFound().build();
         else{
-            return ResponseEntity.ok().body(usuarioService.editMyProfile(newUser, file, usuarioAuth));
+            return ResponseEntity.ok().body(usuarioImplService.editMyProfile(newUser, file, usuarioAuth));
         }
 
     }

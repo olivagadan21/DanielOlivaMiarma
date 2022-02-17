@@ -5,7 +5,7 @@ import com.salesianostriana.dam.DanielOlivaMiarma.model.Publicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.impl.PublicacionImplService;
 import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
-import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.UsuarioService;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.services.impl.UsuarioImplService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +30,7 @@ import java.util.Optional;
 public class PublicacionController {
 
     private final PublicacionImplService publicacionImplService;
-    private final UsuarioService usuarioService;
+    private final UsuarioImplService usuarioImplService;
 
     @Operation(summary = "Crea una nueva publicacion.")
     @ApiResponses(value = {
@@ -178,7 +178,7 @@ public class PublicacionController {
     @GetMapping("user/{nick}")
     public ResponseEntity<List<Publicacion>> findPostsByNick (@PathVariable String nick) {
 
-        if (nick.isEmpty() || usuarioService.loadUserByUsername(nick)==null || publicacionImplService.findAllByUserNick(nick).isEmpty()) {
+        if (nick.isEmpty() || usuarioImplService.loadUserByUsername(nick)==null || publicacionImplService.findAllByUserNick(nick).isEmpty()) {
 
             return ResponseEntity.notFound().build();
 
@@ -203,7 +203,7 @@ public class PublicacionController {
     @GetMapping("me")
     public ResponseEntity<List<Publicacion>> findAllMyPosts (@AuthenticationPrincipal Usuario usuarioAuth) {
 
-        Optional<Usuario> usuario = usuarioService.loadUserById(usuarioAuth.getId());
+        Optional<Usuario> usuario = usuarioImplService.findById(usuarioAuth.getId());
 
         return usuario.map(value -> ResponseEntity.ok().body(value.getPublicacionList())).orElseGet(() -> ResponseEntity.notFound().build());
 

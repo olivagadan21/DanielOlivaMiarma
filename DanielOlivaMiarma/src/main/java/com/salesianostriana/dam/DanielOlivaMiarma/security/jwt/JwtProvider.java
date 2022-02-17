@@ -23,10 +23,10 @@ public class JwtProvider {
     public static final String TOKEN_HEADER = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    @Value("${jwt.secret:elsecretoibericoeselquemasmegusta}")
+    @Value("${jwt.secret:llevalatararaunvestidoblancollenodecascabeles}")
     private String jwtSecret;
 
-    @Value("${jwt.duration:86400}") // 1 día
+    @Value("${jwt.duration:86400}")
     private int jwtLifeInSeconds;
 
     private JwtParser parser;
@@ -53,9 +53,8 @@ public class JwtProvider {
                 .setHeaderParam("typ", TOKEN_TYPE)
                 .setSubject(user.getId().toString())
                 .setIssuedAt(tokenExpirationDate)
-                .claim("nombre", user.getNombre())
-                .claim("apellidos", user.getApellidos())
-                .claim("role", user.getRol().name())
+                .claim("username", user.getUsername())
+                .claim("rol", user.getRol().name())
                 .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                 .compact();
 
@@ -65,7 +64,6 @@ public class JwtProvider {
     public UUID getUserIdFromJwt(String token) {
         return UUID.fromString(parser.parseClaimsJws(token).getBody().getSubject());
     }
-
 
     public boolean validateToken(String token) {
 

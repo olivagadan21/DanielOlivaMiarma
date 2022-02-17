@@ -16,4 +16,11 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long>{
             """, nativeQuery = true)
     List<Publicacion> findAllPublic();
 
+    @Query(value = """
+            select *
+            from Publicacion p
+            where p.usuario.username = :nick
+            """, nativeQuery = true)
+    List<Publicacion> findAllByUserNick(String nick);
+
 }
