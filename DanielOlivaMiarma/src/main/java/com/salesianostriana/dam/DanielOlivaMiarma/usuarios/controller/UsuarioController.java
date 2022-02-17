@@ -19,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "User", description = "User Controller")
@@ -84,41 +86,34 @@ public class UsuarioController {
                     content = @Content),
     })
     @GetMapping("profile/{id}")
-    public ResponseEntity<Usuario> findOneProfile (@PathVariable Long id) {
+    public ResponseEntity<Usuario> findOneProfile (@PathVariable UUID id) {
 
-        if (usuarioService.findById(id).isEmpty() || usuarioService.findById(id).get().getTipoVisualizacion().equals(TipoVisualizacion.PRIVADO)) {
-
+        if (usuarioService.findById(id).isEmpty() || usuarioService.findById(id).get().getTipoVisualizacion().equals(TipoVisualizacion.PRIVADO))
             return ResponseEntity.notFound().build();
-
-        } else {
-
+        else
             return ResponseEntity.ok().body(usuarioService.findById(id).get());
-
-        }
 
     }
 
-    @Operation(summary = "Muestra el perfil de un usuario")
+    @Operation(summary = "Editar mi perfil")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Se ha encontrado el perfil",
+                    description = "Se ha editado el perfil",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Usuario.class))}),
             @ApiResponse(responseCode = "400",
-                    description = "No se ha encontrado el perfil",
+                    description = "No se ha editado el perfil",
                     content = @Content),
     })
-    @GetMapping("profile/me")
-    public ResponseEntity<Usuario> findMyProfile (@AuthenticationPrincipal Usuario usuarioAuth) {
+    @PutMapping("profile/me")
+    public ResponseEntity<Usuario> editMyProfile  (@RequestPart("user") CreateUsuarioDto newUser,
+                                                   @RequestPart("file") MultipartFile file,
+                                                   @AuthenticationPrincipal Usuario usuarioAuth) {
 
-        if (usuarioService.findById(usuarioAuth.getId()).isEmpty()) {
-
+        if (usuarioAuth == null)
             return ResponseEntity.notFound().build();
-
-        } else {
-
-            return ResponseEntity.ok().body(usuarioService.findById(usuarioAuth.getId()).get());
-
+        else{
+            return ResponseEntity.ok().body(usuarioService.editMyProfile(newUser, file, usuarioAuth));
         }
 
     }

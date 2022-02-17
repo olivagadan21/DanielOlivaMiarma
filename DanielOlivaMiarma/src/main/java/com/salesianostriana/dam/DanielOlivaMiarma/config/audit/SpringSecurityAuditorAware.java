@@ -7,11 +7,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Log
-public class SpringSecurityAuditorAware implements AuditorAware<Long> {
+public class SpringSecurityAuditorAware implements AuditorAware<UUID> {
     @Override
-    public Optional<Long> getCurrentAuditor() {
+    public Optional<UUID> getCurrentAuditor() {
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NaturalId;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -26,22 +27,29 @@ import java.util.UUID;
 public class Usuario implements UserDetails {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator",
+            parameters = {
+                    @org.hibernate.annotations.Parameter(
+                            name = "uuid_gen_strategy_class",
+                            value = "org.hibernate.id.uuid.CustomVersionOneStrategy"
+                    )
+            }
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     private String nombre;
 
     private String apellidos;
-
-    private String username;
 
     @NaturalId
     @Column(unique = true, updatable = false)
     private String email;
 
     private String telefono;
-
-    private LocalDate fechaNacimiento;
 
     private TipoVisualizacion tipoVisualizacion;
 
@@ -56,15 +64,11 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Publicacion> publicacionList = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    List<Usuario> followings = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    List<Usuario> followers = new ArrayList<>();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+
     }
 
     @Override
@@ -97,13 +101,11 @@ public class Usuario implements UserDetails {
         return true;
     }
 
-    public Usuario(String nombre, String apellidos, String username, String email, String telefono, LocalDate fechaNacimiento, TipoVisualizacion tipoVisualizacion, String avatar) {
+    public Usuario(String nombre, String apellidos, String email, String telefono, TipoVisualizacion tipoVisualizacion, String avatar) {
         this.nombre = nombre;
         this.apellidos = apellidos;
-        this.username = username;
         this.email = email;
         this.telefono = telefono;
-        this.fechaNacimiento = fechaNacimiento;
         this.tipoVisualizacion = tipoVisualizacion;
         this.avatar = avatar;
     }

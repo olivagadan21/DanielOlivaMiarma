@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final UsuarioService usuarioService;
+    private final UsuarioService userService;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -35,9 +35,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
             if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
 
-                Long userId = jwtProvider.getUserIdFromJwt(token);
+                UUID userId = jwtProvider.getUserIdFromJwt(token);
 
-                Optional<Usuario> userEntity = usuarioService.findById(userId);
+                Optional<Usuario> userEntity = userService.findById(userId);
 
                 if (userEntity.isPresent()) {
                     Usuario user = userEntity.get();
@@ -51,14 +51,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
                 }
             }
 
         } catch (Exception ex) {
             log.info("No se ha podido establecer el contexto de seguridad (" + ex.getMessage() + ")");
         }
+
         filterChain.doFilter(request, response);
+
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

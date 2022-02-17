@@ -33,7 +33,5 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         httpServletResponse.getWriter().println(strjson);
 
-
-
     }
 }

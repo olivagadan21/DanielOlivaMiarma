@@ -46,17 +46,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/auth/register/public").anonymous()
-                .antMatchers(HttpMethod.POST, "/auth/register/private").anonymous()
-                .antMatchers(HttpMethod.POST, "/auth/login").anonymous()
-                .antMatchers("/h2-console/**").permitAll()
-                .anyRequest().permitAll();
+                .antMatchers(HttpMethod.POST, "/auth/**").anonymous()
+                .antMatchers("/h2-console/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated();
+
 
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 
+        // Para dar acceso a h2
         http.headers().frameOptions().disable();
+
 
     }
 
@@ -65,5 +67,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
 }
