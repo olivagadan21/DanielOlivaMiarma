@@ -110,7 +110,7 @@ public class UsuarioController {
                                                    @RequestPart("file") MultipartFile file,
                                                    @AuthenticationPrincipal Usuario usuarioAuth) {
 
-        if (usuarioAuth == null)
+        if (usuarioAuth == null || newUser==null|| file==null)
             return ResponseEntity.notFound().build();
         else{
             return ResponseEntity.ok().body(usuarioImplService.editMyProfile(newUser, file, usuarioAuth));

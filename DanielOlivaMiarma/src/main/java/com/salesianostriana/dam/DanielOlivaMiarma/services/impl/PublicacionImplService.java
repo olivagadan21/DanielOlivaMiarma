@@ -6,30 +6,21 @@ import com.salesianostriana.dam.DanielOlivaMiarma.model.TipoPublicacion;
 import com.salesianostriana.dam.DanielOlivaMiarma.repos.PublicacionRepository;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.PublicacionService;
 import com.salesianostriana.dam.DanielOlivaMiarma.services.StorageService;
+import com.salesianostriana.dam.DanielOlivaMiarma.usuarios.model.Usuario;
 import lombok.RequiredArgsConstructor;
-import org.imgscalr.Scalr;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PublicacionImplService implements PublicacionService {
 
-    private PublicacionRepository publicacionRepository;
-    private StorageService storageService;
-
-    public PublicacionImplService() {
-    }
+    private final PublicacionRepository publicacionRepository;
+    private final StorageService storageService;
 
     public List<Publicacion> findAllPublic() {
 
@@ -43,25 +34,15 @@ public class PublicacionImplService implements PublicacionService {
 
     }
 
-
-    @Override
     public List<Publicacion> findAll() {
         return publicacionRepository.findAll();
     }
 
-    @Override
     public Optional<Publicacion> findById(Long id) {
         return publicacionRepository.findById(id);
     }
 
-    @Override
     public Publicacion save(CreatePublicacionDto p, MultipartFile file) {
-
-        Publicacion publicacion = Publicacion.builder()
-                .titulo(p.getTitulo())
-                .texto(p.getTexto())
-                .tipoPublicacion(TipoPublicacion.valueOf(p.getTipoPublicacion()))
-                .build();
 
         String filename = storageService.store(file);
 
@@ -69,6 +50,35 @@ public class PublicacionImplService implements PublicacionService {
                 .path("/download/")
                 .path(filename)
                 .toUriString();
+
+        Publicacion publicacion = Publicacion.builder()
+                .titulo(p.getTitulo())
+                .texto(p.getTexto())
+                .tipoPublicacion(TipoPublicacion.valueOf(p.getTipoPublicacion()))
+                .fichero(filename)
+                .build();
+
+
+        return publicacionRepository.save(publicacion);
+
+    }
+
+    public Publicacion edit(CreatePublicacionDto p, MultipartFile file, Long id) {
+
+        Publicacion publicacion = publicacionRepository.findById(id).get();
+
+        storageService.deleteFile(publicacion.getFichero());
+
+        String filename = storageService.store(file);
+
+        String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/download/")
+                .path(filename)
+                .toUriString();
+
+        publicacion.setTitulo(p.getTitulo());
+        publicacion.setTexto(p.getTexto());
+        publicacion.setFichero(filename);
 
         return publicacionRepository.save(publicacion);
 
@@ -81,6 +91,10 @@ public class PublicacionImplService implements PublicacionService {
 
     @Override
     public void deleteById(Long id) {
+
+        storageService.deleteFile(publicacionRepository.findById(id).get().getFichero());
+
         publicacionRepository.deleteById(id);
+
     }
 }

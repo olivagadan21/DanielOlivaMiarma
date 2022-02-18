@@ -48,8 +48,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/auth/register/*").anonymous()
-                .antMatchers(HttpMethod.POST, "/auth/login").anonymous()
+                .antMatchers(HttpMethod.POST, "/auth/*").anonymous()
+                .antMatchers(HttpMethod.POST, "/me").authenticated()
+                .antMatchers(HttpMethod.POST, "/post/").permitAll()
+                .antMatchers(HttpMethod.PUT, "/post/").permitAll()
+                .antMatchers(HttpMethod.GET, "/post/").permitAll()
+                .antMatchers(HttpMethod.DELETE, "/post/").permitAll()
+                .antMatchers(HttpMethod.PUT, "/profile/").permitAll()
+                .antMatchers(HttpMethod.GET, "/profile/").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll();
 

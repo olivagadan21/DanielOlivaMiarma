@@ -31,6 +31,15 @@ public class UsuarioImplService extends UsuarioService<Usuario, UUID, UsuarioRep
 
     public Usuario savePublic(CreateUsuarioDto newUser, MultipartFile file) {
         if (newUser.getPassword().contentEquals(newUser.getPassword2())) {
+
+
+            String filename = storageService.store(file);
+
+            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/download/")
+                    .path(filename)
+                    .toUriString();
+
             Usuario usuario = Usuario.builder()
                     .password(passwordEncoder.encode(newUser.getPassword()))
                     .nombre(newUser.getNombre())
@@ -39,15 +48,8 @@ public class UsuarioImplService extends UsuarioService<Usuario, UUID, UsuarioRep
                     .rol(RolUsuario.USUARIO)
                     .tipoVisualizacion(TipoVisualizacion.PUBLICO)
                     .telefono(newUser.getTelefono())
-                    .avatar(file.getOriginalFilename())
+                    .avatar(filename)
                     .build();
-
-            String filename = storageService.store(file);
-
-            String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/download/")
-                    .path(filename)
-                    .toUriString();
 
             return save(usuario);
         } else {
@@ -65,7 +67,7 @@ public class UsuarioImplService extends UsuarioService<Usuario, UUID, UsuarioRep
                     .rol(RolUsuario.USUARIO)
                     .tipoVisualizacion(TipoVisualizacion.PRIVADO)
                     .telefono(newUser.getTelefono())
-                    .avatar(file.getOriginalFilename())
+                    .avatar(file.toString())
                     .build();
 
             String filename = storageService.store(file);
@@ -84,14 +86,6 @@ public class UsuarioImplService extends UsuarioService<Usuario, UUID, UsuarioRep
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return repositorio.findFirstByEmail(email)
                 .orElseThrow(()-> new UsernameNotFoundException(email + " no encontrado"));
-    }
-
-    public Page<Usuario> loadUserByRol(RolUsuario rol, Pageable pageable) throws UsernameNotFoundException {
-        return repositorio.findByRol(rol, pageable);
-    }
-
-    public Optional<Usuario> loadUserById(UUID id) throws UsernameNotFoundException {
-        return findById(id);
     }
 
     public Usuario editMyProfile  (CreateUsuarioDto newUser, MultipartFile file, Usuario usuarioAuth) {

@@ -74,18 +74,7 @@ public class PublicacionController {
         if (publicacion == null || id == null) {
             return ResponseEntity.notFound().build();
         } else {
-
-            return ResponseEntity.of(
-                    publicacionImplService.findById(id).map(p ->{
-                        p.setTexto(publicacion.getTexto());
-                        p.setTitulo(publicacion.getTitulo());
-                        p.setTipoPublicacion(TipoPublicacion.valueOf(publicacion.getTipoPublicacion()));
-                        p.setFichero(p.getFichero());
-                        publicacionImplService.save(publicacion, file);
-
-                        return p;
-                    })
-            );
+            return ResponseEntity.ok().body(publicacionImplService.edit(publicacion, file, id));
         }
     }
 
@@ -100,7 +89,7 @@ public class PublicacionController {
                     content = @Content),
     })
     @DeleteMapping("{id}")
-    public ResponseEntity deletePost(@PathVariable Long id) {
+    public ResponseEntity<?> deletePost(@PathVariable Long id) {
 
         if (publicacionImplService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();

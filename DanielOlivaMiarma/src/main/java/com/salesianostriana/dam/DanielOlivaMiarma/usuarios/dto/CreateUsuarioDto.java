@@ -1,5 +1,6 @@
 package com.salesianostriana.dam.DanielOlivaMiarma.usuarios.dto;
 
+import com.salesianostriana.dam.DanielOlivaMiarma.validacion.anotaciones.UniqueUsername;
 import lombok.*;
 
 @Getter
@@ -9,6 +10,7 @@ import lombok.*;
 @Builder
 public class CreateUsuarioDto {
 
+    @UniqueUsername(message = "El usuario debe ser único")
     private String username;
     private String telefono;
     private String nombre;
